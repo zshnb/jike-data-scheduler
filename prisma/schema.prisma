@@ -9,3 +9,18 @@ datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id               Int    @id @default(autoincrement())
+  username         String
+  jikeRefreshToken String
+  Data             Data[]
+}
+
+model Data {
+  id            Int    @id @default(autoincrement())
+  followerCount Int
+  user          User   @relation(fields: [userId], references: [id])
+  userId        Int
+  date          BigInt
+}
