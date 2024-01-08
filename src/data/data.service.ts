@@ -13,16 +13,22 @@ export class DataService {
   async fetchFollowerCount() {
     const users = await this.prisma.user.findMany()
     for (const user of users) {
-      const refreshToken = user.jikeRefreshToken
-      const accessToken = user.jikeAccessToken
+      let refreshToken = user.jikeRefreshToken
+      let accessToken = user.jikeAccessToken
       try {
         const profile = await this.jikeClient.getProfile({
           accessToken,
           refreshToken,
         })
+        if ('accessToken' in profile) {
+          accessToken = profile.accessToken
+          refreshToken = profile.refreshToken
+        }
         await this.prisma.user.update({
           data: {
             username: profile.user.screenName,
+            jikeAccessToken: accessToken,
+            jikeRefreshToken: refreshToken,
           },
           where: {
             id: user.id,
