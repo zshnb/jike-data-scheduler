@@ -10,7 +10,7 @@ export class DataService {
     private jikeClient: JikeClient,
   ) {}
 
-  async getFollowerCount() {
+  async fetchFollowerCount() {
     const users = await this.prisma.user.findMany()
     for (const user of users) {
       const refreshToken = user.jikeRefreshToken

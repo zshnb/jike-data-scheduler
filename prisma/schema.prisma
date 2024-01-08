@@ -13,8 +13,8 @@ datasource db {
 model User {
   id               Int    @id @default(autoincrement())
   username         String
-  jikeAccessToken  String
-  jikeRefreshToken String
+  jikeAccessToken  String @db.VarChar(1000)
+  jikeRefreshToken String @db.VarChar(1000)
   Data             Data[]
 }
 

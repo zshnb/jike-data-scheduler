@@ -4,8 +4,9 @@ import { AppService } from './app.service'
 import { ConfigModule } from '@nestjs/config'
 import configuration from './configuration'
 import { ClsModule } from 'nestjs-cls'
-import { DataModule } from './data/data.module';
+import { DataModule } from './data/data.module'
 import { ScheduleModule } from '@nestjs/schedule'
+import { UserModule } from './user/user.module'
 
 @Module({
   imports: [
@@ -23,7 +24,8 @@ import { ScheduleModule } from '@nestjs/schedule'
       },
     }),
     DataModule,
-    ScheduleModule.forRoot()
+    ScheduleModule.forRoot(),
+    UserModule,
   ],
   controllers: [AppController],
   providers: [AppService],

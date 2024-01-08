@@ -8,10 +8,6 @@ export type ApiToken = {
 @Injectable()
 export class JikeClient {
   host: string = 'https://api.ruguoapp.com/1.0'
-  refreshToken: string
-  constructor(refreshToken: string) {
-    this.refreshToken = refreshToken
-  }
 
   async getProfile({ accessToken, refreshToken }: ApiToken) {
     const response = await fetch(`${this.host}/users/profile`, {
@@ -26,7 +22,8 @@ export class JikeClient {
     if (response.ok) {
       return response.json()
     } else {
-      throw new Error('get jike profile error')
+      const text = await response.text()
+      throw new Error('get jike profile error' + text)
     }
   }
 }
