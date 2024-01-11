@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common'
 import { PrismaService } from '../prisma.service'
 import { JikeClient } from '../jikeClient'
 import { Cron } from '@nestjs/schedule'
+import { FollowerData } from './data'
+import { format } from 'date-fns'
 
 @Injectable()
 export class DataService {
@@ -10,11 +12,16 @@ export class DataService {
     private jikeClient: JikeClient,
   ) {}
 
-  @Cron('0 0 * * *')
+  @Cron('0 23 * * *')
   async fetchFollowerCount() {
     console.log('start fetch followerCount')
     const users = await this.prisma.user.findMany()
     for (const user of users) {
+      if (user.username === '') {
+        console.log(`start fetch new user follower count`)
+      } else {
+        console.log(`start fetch ${user.username} follower count`)
+      }
       let refreshToken = user.jikeRefreshToken
       let accessToken = user.jikeAccessToken
       let userId = user.id
@@ -60,6 +67,30 @@ export class DataService {
       } catch (e) {
         console.error(e)
       }
+    }
+  }
+
+  async getFollowerCount(username: string): Promise<FollowerData[]> {
+    const user = await this.prisma.user.findFirst({
+      where: {
+        username,
+      },
+    })
+    if (user === null) {
+      return []
+    } else {
+      const data = await this.prisma.data.findMany({
+        where: {
+          userId: user.id,
+        },
+      })
+      return data.map((it) => {
+        return {
+          count: it.followerCount,
+          username,
+          datetime: format(Number(it.date), 'yyyy-MM-dd'),
+        }
+      })
     }
   }
 }

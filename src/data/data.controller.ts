@@ -1,4 +1,4 @@
-import { Controller, Post } from '@nestjs/common'
+import { Controller, Get, Post, Query } from '@nestjs/common'
 import { DataService } from './data.service'
 
 @Controller('data')
@@ -10,5 +10,10 @@ export class DataController {
     return {
       data: 'success',
     }
+  }
+
+  @Get('/followerCount')
+  async getFollowerCount(@Query('username') username: string) {
+    return this.dataService.getFollowerCount(username)
   }
 }
