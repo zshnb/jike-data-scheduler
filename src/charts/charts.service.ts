@@ -42,8 +42,8 @@ export class ChartsService {
       let chart = echarts.init(null, null, {
         renderer: 'svg', // 必须使用 SVG 模式
         ssr: true, // 开启 SSR
-        width: 400, // 需要指明高和宽
-        height: 300,
+        width: 1280, // 需要指明高和宽
+        height: 720,
       })
       chart.setOption(option)
       const svgStr = chart.renderToSVGString()
