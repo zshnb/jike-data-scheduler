@@ -7,6 +7,7 @@ import { ClsModule } from 'nestjs-cls'
 import { DataModule } from './data/data.module'
 import { ScheduleModule } from '@nestjs/schedule'
 import { UserModule } from './user/user.module'
+import { ChartsModule } from './charts/charts.module'
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { UserModule } from './user/user.module'
     DataModule,
     ScheduleModule.forRoot(),
     UserModule,
+    ChartsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
