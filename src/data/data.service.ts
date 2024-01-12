@@ -26,10 +26,12 @@ export class DataService {
       let accessToken = user.jikeAccessToken
       let userId = user.id
       try {
-        const profile = await this.jikeClient.getProfile({
-          accessToken,
-          refreshToken,
-        })
+        const [profile] = await Promise.all([
+          this.jikeClient.getProfile({
+            accessToken,
+            refreshToken,
+          }),
+        ])
         if ('accessToken' in profile) {
           accessToken = profile.accessToken
           refreshToken = profile.refreshToken
@@ -57,10 +59,35 @@ export class DataService {
             id: userId,
           },
         })
+        const existData = await this.prisma.data.findMany({
+          select: {
+            id: true,
+            followerCount: true,
+          },
+          where: {
+            userId,
+          },
+          orderBy: {
+            date: 'desc',
+          },
+          take: 1,
+        })
+        if (existData.length > 0) {
+          await this.prisma.data.update({
+            data: {
+              followerIncrement:
+                profile.user.statsCount.followedCount -
+                existData[0].followerCount,
+            },
+            where: {
+              id: existData[0].id,
+            },
+          })
+        }
         await this.prisma.data.create({
           data: {
             followerCount: profile.user.statsCount.followedCount,
-            userId: userId,
+            userId,
             date: new Date().getTime(),
           },
         })
