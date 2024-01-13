@@ -70,23 +70,16 @@ export class DataService {
           },
           take: 1,
         })
-        if (existData.length > 0) {
-          await this.prisma.data.update({
-            data: {
-              followerIncrement:
-                profile.user.statsCount.followedCount -
-                existData[0].followerCount,
-            },
-            where: {
-              id: existData[0].id,
-            },
-          })
-        }
         await this.prisma.data.create({
           data: {
             followerCount: profile.user.statsCount.followedCount,
             userId,
             date: new Date().getTime(),
+            followerIncrement:
+              existData.length > 0
+                ? profile.user.statsCount.followedCount -
+                  existData[0].followerCount
+                : 0,
           },
         })
       } catch (e) {
