@@ -26,12 +26,10 @@ export class DataService {
       let accessToken = user.jikeAccessToken
       let userId = user.id
       try {
-        const [profile] = await Promise.all([
-          this.jikeClient.getProfile({
-            accessToken,
-            refreshToken,
-          }),
-        ])
+        const profile = await this.jikeClient.getProfile({
+          accessToken,
+          refreshToken,
+        })
         if ('accessToken' in profile) {
           accessToken = profile.accessToken
           refreshToken = profile.refreshToken
@@ -93,6 +91,11 @@ export class DataService {
         })
       } catch (e) {
         console.error(e)
+      }
+      if (user.username === '') {
+        console.log(`end fetch new user follower count`)
+      } else {
+        console.log(`end fetch ${user.username} follower count`)
       }
     }
   }
