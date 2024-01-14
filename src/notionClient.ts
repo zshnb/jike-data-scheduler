@@ -71,8 +71,8 @@ export class NotionClient {
         auth: key,
       })
 
-      const promises = records.map((it) => {
-        return this.client.pages.create({
+      for (const it of records) {
+        await this.client.pages.create({
           parent: {
             type: 'database_id',
             database_id: databaseId,
@@ -108,8 +108,7 @@ export class NotionClient {
             },
           },
         })
-      })
-      await Promise.all(promises)
+      }
     } catch (e) {
       console.error('create page in database error', e)
     }
