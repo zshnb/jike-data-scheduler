@@ -15,9 +15,11 @@ export class NotionService {
   ) {
     const existRecords =
       await this.notionClient.getDatabaseRecords(appendRecords)
-    const waitForAppendData = data.filter(
-      (it) => !existRecords.includes(format(Number(it.date), 'yyyy-MM-dd')),
-    )
+    const waitForAppendData = data
+      .filter(
+        (it) => !existRecords.includes(format(Number(it.date), 'yyyy-MM-dd')),
+      )
+      .sort((a, b) => (a < b ? -1 : 1))
     console.log(
       `${username} exist records: ${existRecords.length}, append data: ${waitForAppendData.length}`,
     )
