@@ -3,3 +3,21 @@ export type GetFollowerChart = {
   notionIntegrationKey?: string
   databaseId?: string
 }
+
+type ChartConfiguration = {
+  type: 'line'
+  data: {}
+  options: {}
+  plugins: []
+}
+
+export type GenerateQuickChart = {
+  width: string // Pixel width
+  height: string // Pixel height
+  devicePixelRatio: number // Pixel ratio (2.0 by default)
+  format: string // png, svg, or webp
+  backgroundColor: string // Canvas background
+  version: string // Chart.js version
+  key: string // API key (optional)
+  chart: ChartConfiguration // Chart.js configuration
+}

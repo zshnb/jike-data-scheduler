@@ -2,15 +2,16 @@ import { Injectable } from '@nestjs/common'
 import { format } from 'date-fns'
 import { PrismaService } from '../prisma.service'
 import * as echarts from 'echarts'
-import { AppendRecords, NotionClient } from '../notionClient'
-import type { Data } from '@prisma/client'
-import { GetFollowerChart } from './charts'
+import { GenerateQuickChart, GetFollowerChart } from './charts'
+import { NotionService } from './notion.service'
+import { QuickChartClient } from '../quickChartClient'
 
 @Injectable()
 export class ChartsService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly notionClient: NotionClient,
+    private readonly notionService: NotionService,
+    private readonly quickChartClient: QuickChartClient,
   ) {}
 
   async getFollowerChart(params: GetFollowerChart) {
@@ -28,8 +29,10 @@ export class ChartsService {
           userId: user.id,
         },
       })
+      const url = this.quickChartClient.generateLineChart(data)
+      console.log(url)
       if (notionIntegrationKey && databaseId) {
-        this.appendRecordToNotion(
+        this.notionService.appendRecordToNotion(
           {
             key: notionIntegrationKey,
             databaseId,
@@ -69,30 +72,5 @@ export class ChartsService {
       chart = null
       return svgStr
     }
-  }
-
-  async appendRecordToNotion(
-    appendRecords: Pick<AppendRecords, 'key' | 'databaseId'>,
-    data: Data[],
-    username: string,
-  ) {
-    const existRecords =
-      await this.notionClient.getDatabaseRecords(appendRecords)
-    const waitForAppendData = data.filter(
-      (it) => !existRecords.includes(format(Number(it.date), 'yyyy-MM-dd')),
-    )
-    console.log(
-      `${username} exist records: ${existRecords.length}, append data: ${waitForAppendData.length}`,
-    )
-    await this.notionClient.appendRecords({
-      ...appendRecords,
-      records: waitForAppendData.map((it) => {
-        return {
-          ...it,
-          date: format(Number(it.date), 'yyyy-MM-dd'),
-          username,
-        }
-      }),
-    })
   }
 }
