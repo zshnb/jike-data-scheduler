@@ -1,8 +1,6 @@
 import { Injectable } from '@nestjs/common'
-import { format } from 'date-fns'
 import { PrismaService } from '../prisma.service'
-import * as echarts from 'echarts'
-import { GenerateQuickChart, GetFollowerChart } from './charts'
+import { GetFollowerChart } from './charts'
 import { NotionService } from './notion.service'
 import { QuickChartClient } from '../quickChartClient'
 
@@ -15,7 +13,7 @@ export class ChartsService {
   ) {}
 
   async getFollowerChart(params: GetFollowerChart) {
-    const { username, notionIntegrationKey, databaseId } = params
+    const { username, notionIntegrationKey, databaseId, pageId } = params
     const user = await this.prisma.user.findFirst({
       where: {
         username,
@@ -29,48 +27,34 @@ export class ChartsService {
           userId: user.id,
         },
       })
-      const url = this.quickChartClient.generateLineChart(data)
-      console.log(url)
-      if (notionIntegrationKey && databaseId) {
-        this.notionService.appendRecordToNotion(
-          {
+      let url: string
+      try {
+        url = await this.quickChartClient.generateLineChart(data)
+      } catch (e) {
+        console.error('generate chart error', e)
+        return ''
+      }
+      if (notionIntegrationKey && databaseId && pageId) {
+        try {
+          this.notionService.appendRecordToDatabase(
+            {
+              key: notionIntegrationKey,
+              databaseId,
+            },
+            data,
+            username,
+          )
+          this.notionService.appendImageToPage({
             key: notionIntegrationKey,
-            databaseId,
-          },
-          data,
-          username,
-        )
+            pageId,
+            url,
+          })
+        } catch (e) {
+          console.error('write data to notion error', e)
+          return ''
+        }
       }
-      const xAxis = {
-        type: 'category',
-        data: data.map((it) => format(Number(it.date), 'yyyy-MM-dd')),
-      }
-      const yAxis = {
-        type: 'value',
-      }
-      const series = [
-        {
-          type: 'line',
-          data: data.map((it) => it.followerCount),
-        },
-      ]
-      const option = {
-        xAxis,
-        yAxis,
-        series,
-      }
-      let chart = echarts.init(null, null, {
-        renderer: 'svg', // 必须使用 SVG 模式
-        ssr: true, // 开启 SSR
-        width: 1280, // 需要指明高和宽
-        height: 720,
-      })
-      chart.setOption(option)
-      const svgStr = chart.renderToSVGString()
-
-      chart.dispose()
-      chart = null
-      return svgStr
+      return url
     }
   }
 }

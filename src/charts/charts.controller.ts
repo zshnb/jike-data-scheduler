@@ -10,11 +10,16 @@ export class ChartsController {
     @Query('username') username: string,
     @Query('notionIntegrationKey') notionIntegrationKey?: string,
     @Query('databaseId') databaseId?: string,
+    @Query('pageId') pageId?: string,
   ) {
-    return this.chartsService.getFollowerChart({
+    const url = await this.chartsService.getFollowerChart({
       username,
       notionIntegrationKey,
       databaseId,
+      pageId,
     })
+    return {
+      data: url,
+    }
   }
 }

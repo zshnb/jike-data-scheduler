@@ -14,6 +14,24 @@ export type Record = {
   username: string
   date: string
 }
+
+export type GetPageBlocks = {
+  key: string
+  pageId: string
+}
+
+export type AppendEmbedBlock = {
+  key: string
+  pageId: string
+  url: string
+}
+
+export type UpdateEmbedBlock = {
+  key: string
+  blockId: string
+  url: string
+}
+
 @Injectable()
 export class NotionClient {
   private client: Client
@@ -60,7 +78,7 @@ export class NotionClient {
             database_id: databaseId,
           },
           properties: {
-            用户名: {
+            '用户名': {
               type: 'title',
               title: [
                 {
@@ -70,15 +88,15 @@ export class NotionClient {
                 },
               ],
             },
-            累计粉丝数: {
+            '累计粉丝数': {
               type: 'number',
               number: it.followerCount,
             },
-            昨日新增粉丝数: {
+            '昨日新增粉丝数': {
               type: 'number',
               number: it.followerIncrement,
             },
-            日期: {
+            '日期': {
               type: 'rich_text',
               rich_text: [
                 {
@@ -94,6 +112,60 @@ export class NotionClient {
       await Promise.all(promises)
     } catch (e) {
       console.error('create page in database error', e)
+    }
+  }
+
+  async getPageBlocks({ key, pageId }: GetPageBlocks) {
+    this.client = new Client({
+      auth: key,
+    })
+    try {
+      const list = await this.client.blocks.children.list({
+        auth: key,
+        block_id: pageId,
+      })
+      return list.results
+    } catch (e) {
+      console.error('retrieve page blocks error', e)
+      return []
+    }
+  }
+
+  async appendEmbedChildToPage({ pageId, key, url }: AppendEmbedBlock) {
+    this.client = new Client({
+      auth: key,
+    })
+    try {
+      await this.client.blocks.children.append({
+        auth: key,
+        block_id: pageId,
+        children: [
+          {
+            object: 'block',
+            embed: {
+              url,
+            },
+          },
+        ],
+      })
+    } catch (e) {
+      console.error('retrieve page blocks error', e)
+      throw e
+    }
+  }
+
+  async replaceEmbedUrl({ blockId, key, url }: UpdateEmbedBlock) {
+    try {
+      await this.client.blocks.update({
+        auth: key,
+        block_id: blockId,
+        embed: {
+          url,
+        },
+      })
+    } catch (e) {
+      console.error('retrieve page blocks error', e)
+      throw e
     }
   }
 }

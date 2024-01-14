@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common'
-import QuickChart from 'quickchart-js'
 import { Data } from '@prisma/client'
 import { format } from 'date-fns'
 
@@ -7,10 +6,15 @@ import { format } from 'date-fns'
 export class QuickChartClient {
   constructor() {}
 
-  generateLineChart(data: Data[]) {
-    const quickChart = new QuickChart('', '')
-    quickChart
-      .setConfig({
+  async generateLineChart(data: Data[]) {
+    const postData = {
+      width: '900',
+      height: '300',
+      devicePixelRatio: 1,
+      format: 'webp',
+      backgroundColor: 'transparent',
+      version: '4',
+      chart: {
         type: 'line',
         data: {
           labels: data.map((it) => format(Number(it.date), 'yyyy-MM-dd')),
@@ -37,12 +41,31 @@ export class QuickChartClient {
             text: 'Chart.js Line Chart',
           },
         },
-      })
-      .setWidth(1280)
-      .setWidth(720)
-      .setBackgroundColor('transparent')
-      .setVersion('4')
-      .setFormat('webp')
-    return quickChart.getShortUrl()
+      },
+    }
+
+    const resp = await fetch(`https://quickchart.io/chart/create`, {
+      method: 'post',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(postData),
+    })
+    if (!resp.ok) {
+      const quickchartError = resp.headers.get('x-quickchart-error')
+      const details = quickchartError ? `\n${quickchartError}` : ''
+      throw new Error(
+        `Chart short url creation failed with status code ${resp.status}${details}`,
+      )
+    }
+
+    const json = (await resp.json()) as
+      | undefined
+      | { success?: boolean; url?: string }
+    if (!json || !json.success || !json.url) {
+      throw new Error('Received failure response from chart shorturl endpoint')
+    } else {
+      return json.url
+    }
   }
 }

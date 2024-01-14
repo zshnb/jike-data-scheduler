@@ -2,12 +2,13 @@ export type GetFollowerChart = {
   username: string
   notionIntegrationKey?: string
   databaseId?: string
+  pageId?: string
 }
 
 type ChartConfiguration = {
   type: 'line'
-  data: {}
-  options: {}
+  data: object
+  options: object
   plugins: []
 }
 
