@@ -8,6 +8,7 @@ import { DataModule } from './data/data.module'
 import { ScheduleModule } from '@nestjs/schedule'
 import { UserModule } from './user/user.module'
 import { ChartsModule } from './charts/charts.module'
+import { JikeModule } from './jike/jike.module'
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { ChartsModule } from './charts/charts.module'
     ScheduleModule.forRoot(),
     UserModule,
     ChartsModule,
+    JikeModule,
   ],
   controllers: [AppController],
   providers: [AppService],
