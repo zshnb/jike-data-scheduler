@@ -12,7 +12,7 @@ export class ChartsService {
     private readonly quickChartClient: QuickChartClient,
   ) {}
 
-  async getFollowerChart(params: GetFollowerChart) {
+  async getFollowerChart(params: GetFollowerChart): Promise<string | null> {
     const { username, notionIntegrationKey, databaseId, pageId } = params
     const user = await this.prisma.user.findFirst({
       where: {
@@ -20,7 +20,7 @@ export class ChartsService {
       },
     })
     if (user === null) {
-      return ''
+      return null
     } else {
       const data = await this.prisma.data.findMany({
         where: {
@@ -32,7 +32,7 @@ export class ChartsService {
         url = await this.quickChartClient.generateLineChart(data)
       } catch (e) {
         console.error('generate chart error', e)
-        return ''
+        return null
       }
       if (notionIntegrationKey && databaseId && pageId) {
         try {
