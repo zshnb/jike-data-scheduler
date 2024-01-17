@@ -1,13 +1,12 @@
-# Introduce
+# 介绍
 
-This is a Node.js template repo which base on [NestJS](https://docs.nestjs.com/) framework integrate some basic config and dependencies
+这是一个Node.js的程序，用于定时抓取数据库中记录的即刻用户的粉丝数据，并提供生成图表和同步数据到Notion的接口
 
-# Integrations
+# 安装
 
-- [configuration](https://docs.nestjs.com/techniques/configuration). inject global, with custom configuration object
-- [cls](https://docs.nestjs.com/recipes/async-local-storage)
-
-# usage
-
-`git clone https://github.com/zshnb/nest-template`
-npm install
+1. 克隆仓库到本地
+2. 执行`npm install`
+3. 本地安装MySQL数据库，新建jike-data-scheduler的数据库
+4. 修改config/.env里的DATABASE_URL信息，修改用户名和密码即可
+5. 执行`npm run prisma:dev`
+6. 执行`npm run start:dev`
